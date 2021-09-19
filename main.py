@@ -15,6 +15,8 @@ def get_linkedin_lines_from_file(file=FILE_PATH) -> list:
     """
     with open(file, "r") as text_file:
         linkedin_names = [line for line in text_file.read().splitlines() if "linkedin" in line.lower()]
+
+    print(f"Finished reading {file}")
     return linkedin_names
 
 
@@ -24,6 +26,7 @@ def get_linkedin_urls(linkedin_list: List[str]) -> List[str]:
     :param linkedin_list: List of strings containing the word linkedin
     :return: List with linkedin urls
     """
+    print("Looking for linkedin urls:")
     cleaned_linkedin_urls = []
     for person_line in linkedin_list:
         url = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', person_line, flags=re.IGNORECASE)
@@ -31,6 +34,7 @@ def get_linkedin_urls(linkedin_list: List[str]) -> List[str]:
             cleaned_linkedin_urls.append((url[0]))
         # else:
         #    cleaned_linkedin_names.append("".join(item[1:]))
+    print(f"Found {len(cleaned_linkedin_urls)} urls")
     return cleaned_linkedin_urls
 
 
@@ -40,6 +44,7 @@ def get_linkedin_names(linkedin_list: List[str]) -> List[str]:
     :param linkedin_list: List containing strings with "linkedin"
     :return: List of person names
     """
+    print("Looking for linkedin names:")
     names = []
     for line in linkedin_list:
         name = re.findall(r"linkedin[:| ]{1,3}(?!.*http)[\w -()]*", line, flags=re.IGNORECASE)
@@ -51,6 +56,7 @@ def get_linkedin_names(linkedin_list: List[str]) -> List[str]:
                 names.append(name)
             elif "linkedin" in name:
                 names.append(name.replace("linkedin", ""))
+    print(f"Found {len(names)} names")
     return names
 
 
@@ -63,6 +69,7 @@ def save_urls_to_file(urls: List[str], file: str = "linkedin_urls.txt"):
     with open(file, "w") as linkedin_urls_file:
         urls = [url + "\n" for url in urls]
         linkedin_urls_file.writelines(urls)
+        print(f"Saved {len(urls)} to {file}")
 
 
 def save_names_to_file(names: List[str], file: str = "linkedin_names.txt"):
@@ -75,6 +82,7 @@ def save_names_to_file(names: List[str], file: str = "linkedin_names.txt"):
         linkedin_name_file.writelines(["Names of people without posted linkedin url \n"])
         names = [name + "\n" for name in names]
         linkedin_name_file.writelines(names)
+        print(f"Saved {len(names)} to {file}")
 
 
 def main():
