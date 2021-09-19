@@ -2,7 +2,6 @@ import re
 from pathlib import Path
 from typing import List
 
-
 CURRENT_DIR = Path(__file__).parent.absolute()
 FILE_PATH = CURRENT_DIR.joinpath("list.txt")
 
@@ -13,11 +12,16 @@ def get_linkedin_lines_from_file(file=FILE_PATH) -> list:
     :param file: Full path to file to open
     :return: List with lines that contain the string "linkedin"
     """
-    with open(file, "r") as text_file:
-        linkedin_names = [line for line in text_file.read().splitlines() if "linkedin" in line.lower()]
+    try:
+        with open(file, "r") as text_file:
+            linkedin_names = [line for line in text_file.read().splitlines() if "linkedin" in line.lower()]
 
-    print(f"Finished reading {file}")
-    return linkedin_names
+        print(f"Finished reading {file}")
+        return linkedin_names
+    except (TypeError, FileNotFoundError):
+        print("No valid file found. Did you specify the file argument or add list.txt to the folder the script is "
+              "run from?")
+        exit()
 
 
 def get_linkedin_urls(linkedin_list: List[str]) -> List[str]:
