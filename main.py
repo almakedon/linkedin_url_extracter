@@ -1,8 +1,7 @@
-import regex
 import re
-from typing import List, Dict
 from pathlib import Path
-import requests
+from typing import List
+
 
 LINKEDIN_SEARCH_URL = "https://www.linkedin.com/search/results/people/"
 CURRENT_DIR = Path(__file__).parent.absolute()
@@ -20,9 +19,6 @@ def get_linkedin_lines_from_file(file=FILE_PATH) -> list:
     return linkedin_names
 
 
-name_list = get_linkedin_lines_from_file()
-
-
 def get_linkedin_urls(linkedin_list: List[str]) -> List[str]:
     """
     Looks for linkedin urls in a list with strings containing "linkedin"
@@ -31,9 +27,9 @@ def get_linkedin_urls(linkedin_list: List[str]) -> List[str]:
     """
     cleaned_linkedin_urls = []
     for person_line in linkedin_list:
-        url = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', person_line)
+        url = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', person_line, flags=re.IGNORECASE)
         if url and "linkedin" in url[0]:
-            cleaned_linkedin_urls.append((url[0] + "\n"))
+            cleaned_linkedin_urls.append((url[0]))
         # else:
         #    cleaned_linkedin_names.append("".join(item[1:]))
     return cleaned_linkedin_urls
@@ -47,38 +43,52 @@ def get_linkedin_names(linkedin_list: List[str]) -> List[str]:
     """
     names = []
     for line in linkedin_list:
-        name = re.findall(r"linkedin[:| ]{1,3}(?!.*http)[\w -()]*", line, flags=regex.IGNORECASE)
+        name = re.findall(r"linkedin[:| ]{1,3}(?!.*http)[\w -()]*", line, flags=re.IGNORECASE)
         if name:
             name = name[0].lower().split(":")
             name = name[-1].strip()
             if "linkedin" not in name:
-                #split = name.split(":")
+                # split = name.split(":")
                 names.append(name)
             elif "linkedin" in name:
                 names.append(name.replace("linkedin", ""))
     return names
 
 
-def save_urls_to_file(urls, file="linkedin_urls.txt"):
+def save_urls_to_file(urls: List[str], file: str = "linkedin_urls.txt"):
     """
     Saves a list of urls to a text file
     :param urls: Urls to save
     :param file: Filename or filepath
     """
     with open(file, "w") as linkedin_urls_file:
+        urls = [url + "\n" for url in urls]
         linkedin_urls_file.writelines(urls)
 
 
-def linkedin_lookup(first_name: str, last_name: str, criteria: Dict[str] = None) -> str:
+def save_names_to_file(names: List[str], file: str = "linkedin_names.txt"):
     """
-    Looks up a person on linkedin based on first name and last name and returns the url for their personal page
-    :param criteria:
-    :param first_name:
-    :param last_name:
+    Saves a list of names to provided filename. Default filename is "linkedin_names.txt"
+    :param names: Linkedin names
+    :param file: Filename
+    """
+    with open(file, "w") as linkedin_name_file:
+        linkedin_name_file.writelines(["Names of people without posted linkedin url \n"])
+        names = [name + "\n" for name in names]
+        linkedin_name_file.writelines(names)
+
+
+def main():
+    """
+    Gets linkedin names and urls from a text file and saves to separate files for url and names
     :return:
     """
-    params = {"firstName": first_name, "lastName": last_name}
-    r = requests.get(LINKEDIN_SEARCH_URL, params=params)
-    print(r.text)
+    linkedin_lines = get_linkedin_lines_from_file()
+    linkedin_urls = get_linkedin_urls(linkedin_lines)
+    linkedin_names = get_linkedin_names(linkedin_lines)
 
-x = get_linkedin_names(name_list)
+    save_urls_to_file(linkedin_urls)
+    save_names_to_file(linkedin_names)
+
+
+main()
