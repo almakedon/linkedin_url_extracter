@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import List
 
 
-LINKEDIN_SEARCH_URL = "https://www.linkedin.com/search/results/people/"
 CURRENT_DIR = Path(__file__).parent.absolute()
 FILE_PATH = CURRENT_DIR.joinpath("list.txt")
 
